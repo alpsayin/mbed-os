@@ -449,18 +449,6 @@ std::FILE *fdopen(FileHandle *fh, const char *mode)
     return stream;
 }
 
-int mbed_getc(std::FILE *_file){
-    return serial_getc(NULL);
-}
-
-char* mbed_gets(char*s, int size, std::FILE *_file){
-    for (int ix = 0; ix < size; ix++) {
-        s[ix] = mbed_getc(_file);
-    }
-
-    return s;
-}
-
 } // namespace mbed
 
 #if defined (__ICCARM__)

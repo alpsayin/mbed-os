@@ -55,8 +55,15 @@ int Stream::putc(int c)
 int Stream::puts(const char *s)
 {
     lock();
-    fflush(_file);
+    std::fseek(_file, 0, SEEK_CUR);
+#if defined(TARGET_SIMULATOR)
+    for (size_t ix = 0; ix < strlen(s); ix++) {
+        _putc(s[ix]);
+    }
+    int ret = 0;
+#else
     int ret = std::fputs(s, _file);
+#endif
     unlock();
     return ret;
 }
@@ -64,7 +71,11 @@ int Stream::getc()
 {
     lock();
     fflush(_file);
-    int ret = mbed_getc(_file);
+#if defined(TARGET_SIMULATOR)
+    int ret = serial_getc(NULL);
+#else
+    int ret = std::fgetc(_file);
+#endif
     unlock();
     return ret;
 }
@@ -72,7 +83,14 @@ char *Stream::gets(char *s, int size)
 {
     lock();
     fflush(_file);
-    char *ret = mbed_gets(s, size, _file);
+#if defined(TARGET_SIMULATOR)
+    for (int ix = 0; ix < size; ix++) {
+        s[ix] = serial_getc(NULL);
+    }
+    char *ret = s;
+#else
+    char *ret = std::fgets(s, size, _file);
+#endif
     unlock();
     return ret;
 }
