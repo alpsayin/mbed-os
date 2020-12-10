@@ -15,16 +15,31 @@
  */
 #include <stddef.h>
 #include "us_ticker_api.h"
+#include <sys/time.h>
+#include "emscripten.h"
+
+
+static uint64_t get_current_time_us(void)
+{
+#if defined(__EMSCRIPTEN__) // +
+    long long currentTime = (long long)(emscripten_get_now() * 1000.0); // +
+#else
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    currentTime = time.tv_sec * 1000000LL + time.tv_usec;
+#endif
+    return currentTime;
+}
 
 void us_ticker_init(void)
 {
-
 }
 
 
-uint32_t us_ticker_read()
+uint32_t us_ticker_read(void)
 {
-    return 0;
+#warning MODIFIED us_ticker_read
+    return (uint32_t)get_current_time_us();
 }
 
 void us_ticker_disable_interrupt(void)
